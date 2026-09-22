@@ -13,7 +13,7 @@ evaluation code does not change.
 | Robot | SO-101, MuJoCo Menagerie `robotstudio_so101` model, position-controlled STS3215 actuators |
 | Observations | 6 joint positions (deg, gripper 0-100) + wrist and overhead RGB 320x240 |
 | Actions | absolute joint targets, same units |
-| Data | 300 expert episodes, 46,337 frames at 50 Hz, LeRobot v3 format (best run) |
+| Data | 600 expert episodes, 92,940 frames at 50 Hz, LeRobot v3 format (best run) |
 | Policy | ACT (52M params), trained on an Apple M5 via MPS |
 
 ## Results (sim, 2026-09-22)
@@ -26,16 +26,19 @@ Success = cube released within 4 cm of the centre of the 5 cm-radius disc ("on t
 | ACT, 320x240, 200 demos, random wrist cam | 31,161 frames | 10k-30k | 3-6 / 20 |
 | ACT, 320x240, 300 demos, fixed wrist cam (v3) | 46,337 frames | 40k | 21 / 50 = 42 % (25/50 grasps) |
 | v3, continued | same | 50k | 33 / 50 = 66 % |
-| **v3, continued** | same | **60k** | **34 / 50 = 68 %** (38/50 grasps); 18 / 20 on a second seed set; 52 / 70 pooled = 74 % |
+| v3, continued | same | 60k | 34 / 50 = 68 % (38/50 grasps) |
+| v3, continued | same | 70k / 80k | 27 / 50 = 54 % · 29 / 50 = 58 % (plateau) |
+| ACT, 320x240, 600 demos, tighter overhead crop (v6), warm-started from v3-60k | 92,940 frames | 10k | 36 / 50 = 72 % |
+| **v6, continued** | same | **20k** | **44 / 50 = 88 %** · 46 / 50 = 92 % on a second seed set · **90 / 100 pooled = 90 %** |
 
-What moved the needle, in order: training long enough (40k to 60k steps alone took the same policy from 42 % to 68 %); 4x more demonstrations; halving image resolution so the same Mac could afford 3x more steps; fixing the simulated wrist camera (so101-nexus randomises its FOV/pitch/position every episode, which destroys the fine-alignment cue a rigidly mounted real camera gives). What did not: temporal ensembling, re-planning every 25 or 50 steps (both worse than executing the full 100-step chunk), and a 35 mm cube (the scripted expert does not yaw-align the jaw, so its big-cube demos are inconsistent).
+What moved the needle, in order: **warm-starting a new run from the previous best checkpoint** (v6 reached 72 % after 10k steps, where v3 needed 60k to reach 68 %, and 88 % by 20k); doubling the demonstrations to 600; training long enough (v3 went 42 % to 68 % between 40k and 60k steps on data alone); halving image resolution so the same Mac could afford 3x more steps; fixing the simulated wrist camera (so101-nexus randomises its FOV/pitch/position every episode, which destroys the fine-alignment cue a rigidly mounted real camera gives); and tightening the overhead camera margin to 0.04 so the cube occupies more pixels. What did not: temporal ensembling, re-planning every 25 or 50 steps (both worse than executing the full 100-step chunk), a 35 mm cube (the scripted expert does not yaw-align the jaw, so its big-cube demos are inconsistent), and training v3 past 60k (54-58 % at 70k-80k).
 
-Remaining failure mode is lateral precision at grasp: in failed episodes the policy's closest approach is 1-3 cm off the cube centre, versus 1 mm for the expert. Replaying recorded expert actions in the simulator succeeds 4/4, so the data path (units, timing, cameras) is verified end to end.
+Remaining failure mode is lateral precision at grasp: of the 6 failures in 50, 5 never close on the cube at all and 1 grasps without lifting. Every successful grasp becomes a successful placement, and failures are spread evenly over the 0.06-0.22 m spawn range, so this is vision precision rather than reach. Replaying recorded expert actions in the simulator succeeds 4/4, so the data path (units, timing, cameras) is verified end to end.
 
-| 60k policy rollouts (overhead + wrist) | |
+| v6 policy rollouts at 88 % (overhead + wrist) | |
 |---|---|
-| ![ok](assets/policy_rollout_ok_1.gif) | ![ok](assets/policy_rollout_ok_2.gif) |
-| ![fail](assets/policy_rollout_fail.gif) (a 40k failure) | ![expert](assets/expert_overhead.gif) (scripted expert) |
+| ![ok](assets/policy_v6_ok_1.gif) | ![ok](assets/policy_v6_ok_2.gif) |
+| ![fail](assets/policy_rollout_fail.gif) (a failure from the earlier 42 % policy) | ![expert](assets/expert_overhead.gif) (scripted expert) |
 
 
 ## Pipeline
@@ -46,11 +49,22 @@ uv pip install 'lerobot[core_scripts,training,feetech]' so101-nexus
 export MUJOCO_GL=glfw   # macOS offscreen rendering
 
 python collect_sim.py --dry-run --episodes 20        # expert only, prints success rate
-python collect_sim.py --episodes 300 --seed 7 --spawn-min 0.04 --spawn-max 0.17 \
-    --img-w 320 --img-h 240 --root data/so101_sim_pick_place_v3
-DATASET_ROOT=data/so101_sim_pick_place_v3 RUN=act_sim_v3 SAVE_FREQ=10000 ./train.sh 60000 mps
-python eval_sim.py --policy outputs/train/act_sim_v3/checkpoints/060000/pretrained_model \
-    --episodes 50 --seed 9100 --goal-thresh 0.04 --gif-dir assets/rollouts
+python collect_sim.py --episodes 600 --seed 11 --spawn-min 0.04 --spawn-max 0.17 \
+    --img-w 320 --img-h 240 --overhead-margin 0.04 --root data/so101_sim_pick_place_v6
+
+# from scratch:
+DATASET_ROOT=data/so101_sim_pick_place_v6 RUN=act_sim_v6 SAVE_FREQ=10000 ./train.sh 60000 mps
+# or warm-start from the previous best checkpoint - 88 % by 20k steps instead of 68 % by 60k
+# (--policy.path replaces --policy.type, so call lerobot-train directly):
+lerobot-train --policy.path=outputs/train/act_sim_v3/checkpoints/060000/pretrained_model \
+    --policy.device=mps --policy.push_to_hub=false \
+    --dataset.repo_id=aviadarn/so101_sim_pick_place_v6 \
+    --dataset.root=data/so101_sim_pick_place_v6 \
+    --output_dir=outputs/train/act_sim_v6 --job_name=act_sim_v6 \
+    --steps=60000 --batch_size=8 --save_freq=10000 --num_workers=2 --wandb.enable=false
+
+python eval_sim.py --policy outputs/train/act_sim_v6/checkpoints/020000/pretrained_model \
+    --episodes 50 --seed 9100 --goal-thresh 0.04 --overhead-margin 0.04 --gif-dir assets/rollouts
 ```
 
 ## Scripted expert
