@@ -1,0 +1,7 @@
+.venv/
+data/
+outputs/
+*.log
+__pycache__/
+smoke_*.png
+dry_run*
