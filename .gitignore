@@ -5,3 +5,7 @@ outputs/
 __pycache__/
 smoke_*.png
 dry_run*
+
+# the sweep's per-episode eval output is evidence, not noise: the failure-mode
+# table in the README is derived from it, so it ships with the results
+!results/sweep/*.eval.log

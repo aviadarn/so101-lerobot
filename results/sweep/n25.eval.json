@@ -1,0 +1,7 @@
+{
+  "n_demos": 25,
+  "raw_tail": "ft=0.000 init_dist=0.121 final_dist=0.121\nep 47 seed 910000047 FAIL first_success@-1 first_grasp@-1 max_lift=0.008 init_dist=0.056 final_dist=0.075\nep 48 seed 910000048 FAIL first_success@-1 first_grasp@-1 max_lift=0.000 init_dist=0.099 final_dist=0.102\nep 49 seed 910000049 FAIL first_success@-1 first_grasp@-1 max_lift=0.001 init_dist=0.157 final_dist=0.145\nSUCCESS 5/50 = 10%  (108s, device=cuda)\n",
+  "successes": 5,
+  "episodes": 50,
+  "success_rate": 0.1
+}

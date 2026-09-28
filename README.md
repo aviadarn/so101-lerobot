@@ -42,6 +42,81 @@ Remaining failure mode is lateral precision at grasp: of the 6 failures in 50, 5
 | ![fail](assets/policy_rollout_fail.gif) (a failure from the earlier 42 % policy) | ![expert](assets/expert_overhead.gif) (scripted expert) |
 
 
+## How many demonstrations are worth collecting? (sim, 2026-09-28)
+
+The results above answer "how good can this get". They do not answer the question you actually
+face before a data-collection session: **how much does the next demonstration buy you?** So this
+sweep holds everything constant except the number of demonstrations.
+
+Five ACT policies, 40k steps each, batch 8, seed 1000, identical architecture. All five are
+evaluated on the *same* 50 held-out layouts (seed 9100), disjoint from every recording seed. The
+subsets are nested - 25 ⊂ 50 ⊂ 100 ⊂ 200 ⊂ 300 - so each point adds data to the one below it
+rather than redrawing, which removes subset composition as a source of variance. Dataset: 300
+fresh episodes, 46,561 frames, regenerated with the settings the table above landed on.
+
+![demonstrations vs success](results/sweep/curve.png)
+
+| Demonstrations | Success (50 unseen layouts) | 95 % Wilson |
+|---|---|---|
+| 25 | 5 / 50 = 10 % | [4, 21] |
+| 50 | 17 / 50 = 34 % | [22, 48] |
+| 100 | 22 / 50 = 44 % | [31, 58] |
+| 200 | **27 / 50 = 54 %** | [40, 67] |
+| 300 | 25 / 50 = 50 % | [37, 63] |
+
+The comparable published point is the v3 run above: 300 demonstrations, 40k steps, **42 %**. This
+sweep's 300-demo point reaches 50 % on regenerated data, so the pipeline reproduces and slightly
+exceeds it. Note that **68 % is the 60k-step number, not the 40k one** - every point here is
+deliberately under-trained at a fixed compute budget, because the question is what data buys at
+constant training cost, not what the task saturates at.
+
+### The curve is a grasping curve
+
+Splitting each failure by where it broke shows that one number moves and the other does not:
+
+| Demos | Success | Never grasped | Grasped, no lift | Lifted, missed | Grasp rate | Place given grasp |
+|---|---|---|---|---|---|---|
+| 25 | 5 | 37 | 0 | 8 | 26 % | 38 % |
+| 50 | 17 | 30 | 0 | 3 | 38 % | 84 % |
+| 100 | 22 | 25 | 2 | 1 | 48 % | 88 % |
+| 200 | 27 | 19 | 2 | 2 | 58 % | 86 % |
+| 300 | 25 | 19 | 4 | 2 | 60 % | 80 % |
+
+Grasp rate climbs monotonically with data, 26 → 38 → 48 → 58 → 60 %. **Place-given-grasp is flat
+from 50 demonstrations onward: 84, 88, 86, 80 %.** Between 50 and 300 demonstrations - a 6x
+increase - the policy learns to *find and close on* the cube, and learns nothing further about
+carrying and releasing it. The one exception is 25 demonstrations, where place-given-grasp
+collapses to 38 %: below some floor the policy has not learned the task at all, only a crude
+reach.
+
+Practical reading, for this task on this rig:
+
+- **Below ~50 demonstrations, don't bother.** 25 is not a weak policy, it is a broken one.
+- **Returns fall off sharply after ~100, and 200 vs 300 is inside the noise band** (2 episodes at
+  n=50). Treat the top as a plateau, not a peak at 200 - this data cannot distinguish them.
+- **More demonstrations will not fix placement, because placement is not what is failing.** The
+  remaining 19-of-50 failures at N=300 are approach precision. Spending the next session on more
+  of the same demonstrations buys less than fixing the approach (camera resolution at the grasp,
+  wrist-camera geometry, or an approach-phase correction).
+
+Each point cost ~52 min of RTX A4000 time; the whole sweep was **$0.78**.
+
+| N=300 policy rollouts (overhead + wrist) | |
+|---|---|
+| ![ok](assets/sweep/rollout_02_ok.gif) | ![ok](assets/sweep/rollout_03_ok.gif) |
+| ![fail](assets/sweep/rollout_00_fail.gif) (never closes on the cube) | ![fail](assets/sweep/rollout_01_fail.gif) (same failure, the dominant one) |
+
+Reproduce:
+
+```bash
+python collect_sim.py --episodes 300 --seed 11 --spawn-min 0.04 --spawn-max 0.17 \
+    --img-w 320 --img-h 240 --overhead-margin 0.04 --root data/sweep_300 \
+    --repo-id $HF_USER/so101_sweep_300
+bash sweep_all.sh                       # trains and evaluates all five points
+python tools/plot_sweep.py              # results/sweep/curve.{png,csv}
+python tools/failure_modes.py           # results/sweep/failure_modes.json
+```
+
 ## Pipeline
 
 ```bash

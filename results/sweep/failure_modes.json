@@ -1,0 +1,47 @@
+{
+  "25": {
+    "episodes": 50,
+    "grasp_rate": 0.26,
+    "grasped_no_lift": 0,
+    "lifted_missed_target": 8,
+    "never_grasped": 37,
+    "place_given_grasp": 0.38461538461538464,
+    "success": 5
+  },
+  "50": {
+    "episodes": 50,
+    "grasp_rate": 0.38,
+    "grasped_no_lift": 0,
+    "lifted_missed_target": 3,
+    "never_grasped": 30,
+    "place_given_grasp": 0.8421052631578947,
+    "success": 17
+  },
+  "100": {
+    "episodes": 50,
+    "grasp_rate": 0.48,
+    "grasped_no_lift": 2,
+    "lifted_missed_target": 1,
+    "never_grasped": 25,
+    "place_given_grasp": 0.875,
+    "success": 22
+  },
+  "200": {
+    "episodes": 50,
+    "grasp_rate": 0.58,
+    "grasped_no_lift": 2,
+    "lifted_missed_target": 2,
+    "never_grasped": 19,
+    "place_given_grasp": 0.8620689655172413,
+    "success": 27
+  },
+  "300": {
+    "episodes": 50,
+    "grasp_rate": 0.6,
+    "grasped_no_lift": 4,
+    "lifted_missed_target": 2,
+    "never_grasped": 19,
+    "place_given_grasp": 0.8,
+    "success": 25
+  }
+}
