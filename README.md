@@ -210,6 +210,39 @@ python tools/test_score_demos.py --root data/curation_600      # metric self-tes
 bash curation_driver.sh                                        # all four arms
 ```
 
+## Reviewing the demonstrations: a browser tool (2026-09-29)
+
+The scorer above ranks demonstrations and names the signal it flagged each one on. That is
+only worth anything if a person can check it, so this is the surface they check it through —
+and, given the previous section's result, the interface matters more than the ranking does:
+the score is a starting point for a human decision, not an automatic filter.
+
+![review UI](assets/review/review-ui.jpg)
+
+React 18 + TypeScript + Vite in [`review-ui/`](review-ui/). No UI framework, and no charting
+library — the trajectory plot is hand-drawn SVG, roughly forty lines against ~300 kB of
+dependency.
+
+- Ranked list, worst score first, filterable to undecided / flagged / clean
+- Both camera clips, scrubbable and synchronised to each other
+- Joint trajectories with a playhead driven by video time and a marker at the grasp frame
+- **Why this score**: each signal's weighted contribution beside its raw measurement, so the
+  reviewer can disagree with the scorer on evidence rather than on trust
+- Keep / discard entirely from the keyboard (`K`, `D`, `↑`/`↓`), persisted across reloads,
+  exportable as JSON
+
+`tools/export_review.py` produces what the page loads. Two details it handles: LeRobot writes
+AV1, which Safari and older Chrome will not reliably play, so clips are transcoded to H.264 —
+a review tool that silently shows a blank video is worse than no review tool. And episodes
+live inside concatenated per-chunk mp4s totalling half a gigabyte, so it cuts a bounded slice
+(worst, best, and an even spread between) that stays small enough to open as one page: 40
+episodes is 0.16 MB of JSON and 2.7 MB of clips.
+
+Honest scope: this is a back-end and ML engineer building the front end the work needed, not
+a front-end specialist's portfolio piece. It is the reviewer surface for a data pipeline, and
+it is typed, keyboard-driven and dependency-light because those are the properties that
+matter for the job it does.
+
 ## Pipeline
 
 ```bash

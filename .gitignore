@@ -11,3 +11,8 @@ dry_run*
 !results/*/*.eval.log
 # the metric self-test output, run on the box against the dataset it curated
 !results/curation/metric_test.log
+
+# review UI build output and deps
+review-ui/node_modules/
+review-ui/dist/
+review-ui/*.tsbuildinfo
