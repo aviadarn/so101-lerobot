@@ -1,0 +1,9 @@
+40 clean episodes from data/curation_600, scored before and after injection
+
+defect                   score before  score after  worse in  reason matches
+----------------------------------------------------------------------------
+dither (wander)                  2.52       114.15     40/40           40/40
+pause (hesitate)                 2.52        11.46     40/40           40/40
+regrasp (change mind)            2.52         8.44     40/40           40/40
+
+PASS: every injected defect raises the score, and the reported reason matches it.

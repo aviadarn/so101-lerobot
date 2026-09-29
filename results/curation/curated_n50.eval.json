@@ -1,0 +1,8 @@
+{
+  "arm": "curated",
+  "n_demos": 50,
+  "raw_tail": " max_lift=0.000 init_dist=0.056 final_dist=0.056\nep 48 seed 910000048 FAIL first_success@-1 first_grasp@-1 max_lift=0.006 init_dist=0.099 final_dist=0.090\nep 49 seed 910000049 FAIL first_success@-1 first_grasp@-1 max_lift=0.005 init_dist=0.157 final_dist=0.162\nSUCCESS 7/50 = 14%  (61s, device=cuda)\n",
+  "successes": 7,
+  "episodes": 50,
+  "success_rate": 0.14
+}

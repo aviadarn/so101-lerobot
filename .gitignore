@@ -8,4 +8,6 @@ dry_run*
 
 # the sweep's per-episode eval output is evidence, not noise: the failure-mode
 # table in the README is derived from it, so it ships with the results
-!results/sweep/*.eval.log
+!results/*/*.eval.log
+# the metric self-test output, run on the box against the dataset it curated
+!results/curation/metric_test.log

@@ -117,6 +117,99 @@ python tools/plot_sweep.py              # results/sweep/curve.{png,csv}
 python tools/failure_modes.py           # results/sweep/failure_modes.json
 ```
 
+## Does curating demonstrations beat taking them at random? (sim, 2026-09-29)
+
+Move 1 asked how many demonstrations to collect. The follow-up a team actually faces is
+which ones to *keep*: given a pile of recorded demonstrations, is training on the best of
+them better than training on the same number drawn at random?
+
+The premise that makes this awkward is that **every demonstration in the dataset
+succeeded** - `collect_sim.py` only calls `save_episode()` on success, exactly as an
+operator only keeps the takes that worked. There is no label to sort on, so quality has to
+be read off the motion itself: duration, how directly the path ran, jerk, pauses, gripper
+reversals, when the grasp happened, and distance from the fleet's median trajectory.
+Nothing reads the outcome or the object pose, so the same scoring would run unchanged on
+real operator data.
+
+Four ACT policies, 40k steps each, same seed, evaluated on the same 50 held-out layouts.
+The only thing that differs is *which* episodes each saw.
+
+![curated vs random](results/curation/curation.png)
+
+| Demonstrations | Curated (top-N by score) | Random N (control) |
+|---|---|---|
+| 50 | 7 / 50 = **14 %**   [7, 26] | 14 / 50 = **28 %**   [17, 42] |
+| 100 | 11 / 50 = **22 %**   [13, 35] | 29 / 50 = **58 %**   [44, 71] |
+
+**Curation lost, badly.** At N=100 the Wilson intervals do not overlap, so this is not
+sampling noise. Picking the best-looking demonstrations roughly halved success at 50 and
+did worse than that at 100.
+
+### Why: the score rewards typicality, and typicality is not coverage
+
+The scoring has a failure mode that is obvious only in hindsight. `median_dev` penalises
+distance from the fleet median by construction, and duration, path directness and jerk all
+favour the modal demonstration. "Highest quality" therefore means "most like the others",
+and a set of near-identical demonstrations shows the policy a narrower slice of the state
+space than a varied set of the same size. Measured directly on the two subsets:
+
+| | N=50 | N=100 |
+|---|---|---|
+| reach range | −6.9 % | −15.3 % |
+| mean pairwise distance | −17.7 % | −21.6 % |
+| nearest-neighbour distance | **−29.7 %** | **−29.0 %** |
+
+Every curated episode sits about 30 % closer to its nearest neighbour than in the random
+set. This is *after* the selection was stratified by task difficulty specifically to stop
+it picking easy instances - difficulty is matched to within ~1 %, and coverage still
+collapses on every other axis. The set is not easier, it is more repetitive.
+
+The failure breakdown says the same thing in task terms:
+
+| N | arm | success | never grasped | grasp rate | place given grasp |
+|---|---|---|---|---|---|
+| 50 | curated | 7 | 36 | 28 % | 50 % |
+| 50 | random | 14 | 32 | 36 % | 78 % |
+| 100 | curated | 11 | 32 | 36 % | 61 % |
+| 100 | random | 29 | 19 | 56 % | 93 % |
+
+Move 1 found that place-given-grasp was flat at 80-88 % no matter how much data the policy
+saw. Curation breaks that: it drops to 61 % and 50 %. Demonstration *volume* never affected
+the placement controller, but demonstration *homogeneity* does - trained on a bundle of
+near-copies, the policy fumbles states that varied data would have covered.
+
+### What to take from it
+
+- **"Score your demonstrations and keep the best" is the obvious tool to build, and it can
+  actively hurt.** It cost a factor of two here. Anyone building curation tooling for a
+  demonstration-driven product should measure this before shipping it as a default.
+- **A quality metric that penalises deviation from the norm is a diversity filter wearing a
+  quality costume.** The signals that read as "clean" - smooth, direct, typical - are
+  measuring conformity, and conformity is the thing you least want to select for in
+  imitation data.
+- **The control is the whole experiment.** Curated-100 at 22 % looks respectable next to
+  Move 1's 44 % at N=100 until the matched control lands at 58 %.
+- What would plausibly work instead, and is the natural next experiment: select for
+  *coverage* rather than quality - maximise spread over the workspace and over trajectory
+  shape, using the quality score only to drop genuinely broken episodes.
+
+The scorer is also validated rather than assumed: `tools/test_score_demos.py` injects
+wobble, hesitation and regrasp into real episodes and asserts the score rises and names the
+right signal. That test is what caught three defects in the metric itself - a grasp
+detector that fired on frame 0 because episodes start with the gripper closed, a
+`path_ratio` whose denominator inflated along with its numerator, and a signal whose MAD was
+zero on scripted-expert data. It runs on the box against the same dataset it curates.
+
+Both runs cost **$0.68** of rented A4000 time.
+
+```bash
+python tools/score_demos.py  --root data/curation_600 --out curation/scores.json
+python tools/select_demos.py --scores curation/scores.json --n 100 --out curation/select_n100.json
+python tools/coverage.py     --root data/curation_600 --select curation/select_n*.json
+python tools/test_score_demos.py --root data/curation_600      # metric self-test
+bash curation_driver.sh                                        # all four arms
+```
+
 ## Pipeline
 
 ```bash

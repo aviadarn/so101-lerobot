@@ -1,0 +1,56 @@
+inference: chunk_size=100 n_action_steps=100 temporal_ensemble_coeff=None
+Loading weights from local directory
+env cameras: 320x240
+/workspace/.venv/lib/python3.12/site-packages/gymnasium/envs/registration.py:513: DeprecationWarning: [33mWARN: The environment MuJoCoPickAndPlace-v1 is out of date. You should consider upgrading to version `v2`.[0m
+  logger.deprecation(
+ep  0 seed 910000000 FAIL first_success@-1 first_grasp@-1 max_lift=0.003 init_dist=0.065 final_dist=0.051
+ep  1 seed 910000001 FAIL first_success@-1 first_grasp@56 max_lift=0.002 init_dist=0.075 final_dist=0.072
+ep  2 seed 910000002 FAIL first_success@-1 first_grasp@-1 max_lift=0.002 init_dist=0.059 final_dist=0.050
+ep  3 seed 910000003 FAIL first_success@-1 first_grasp@-1 max_lift=0.008 init_dist=0.215 final_dist=0.233
+ep  4 seed 910000004 OK   first_success@122 first_grasp@47 max_lift=0.081 init_dist=0.135 final_dist=0.017
+ep  5 seed 910000005 FAIL first_success@-1 first_grasp@55 max_lift=0.056 init_dist=0.146 final_dist=0.142
+ep  6 seed 910000006 FAIL first_success@-1 first_grasp@-1 max_lift=0.000 init_dist=0.121 final_dist=0.121
+ep  7 seed 910000007 OK   first_success@112 first_grasp@51 max_lift=0.083 init_dist=0.121 final_dist=0.019
+ep  8 seed 910000008 FAIL first_success@-1 first_grasp@57 max_lift=0.005 init_dist=0.129 final_dist=0.123
+ep  9 seed 910000009 OK   first_success@104 first_grasp@50 max_lift=0.086 init_dist=0.107 final_dist=0.021
+ep 10 seed 910000010 FAIL first_success@-1 first_grasp@-1 max_lift=0.002 init_dist=0.174 final_dist=0.174
+ep 11 seed 910000011 FAIL first_success@-1 first_grasp@-1 max_lift=0.000 init_dist=0.103 final_dist=0.103
+ep 12 seed 910000012 FAIL first_success@-1 first_grasp@-1 max_lift=0.005 init_dist=0.088 final_dist=0.066
+ep 13 seed 910000013 FAIL first_success@-1 first_grasp@52 max_lift=0.080 init_dist=0.096 final_dist=0.047
+ep 14 seed 910000014 FAIL first_success@-1 first_grasp@-1 max_lift=0.006 init_dist=0.096 final_dist=0.078
+ep 15 seed 910000015 FAIL first_success@-1 first_grasp@-1 max_lift=0.009 init_dist=0.114 final_dist=0.077
+ep 16 seed 910000016 FAIL first_success@-1 first_grasp@-1 max_lift=0.002 init_dist=0.104 final_dist=0.099
+ep 17 seed 910000017 OK   first_success@131 first_grasp@56 max_lift=0.084 init_dist=0.209 final_dist=0.017
+ep 18 seed 910000018 FAIL first_success@-1 first_grasp@-1 max_lift=0.002 init_dist=0.142 final_dist=0.130
+ep 19 seed 910000019 FAIL first_success@-1 first_grasp@-1 max_lift=0.000 init_dist=0.079 final_dist=0.079
+ep 20 seed 910000020 FAIL first_success@-1 first_grasp@-1 max_lift=0.000 init_dist=0.217 final_dist=0.217
+ep 21 seed 910000021 FAIL first_success@-1 first_grasp@-1 max_lift=0.002 init_dist=0.204 final_dist=0.211
+ep 22 seed 910000022 OK   first_success@122 first_grasp@55 max_lift=0.085 init_dist=0.188 final_dist=0.028
+ep 23 seed 910000023 FAIL first_success@-1 first_grasp@-1 max_lift=0.007 init_dist=0.104 final_dist=0.103
+ep 24 seed 910000024 OK   first_success@116 first_grasp@51 max_lift=0.085 init_dist=0.155 final_dist=0.024
+ep 25 seed 910000025 FAIL first_success@-1 first_grasp@-1 max_lift=0.000 init_dist=0.085 final_dist=0.085
+ep 26 seed 910000026 OK   first_success@118 first_grasp@48 max_lift=0.083 init_dist=0.181 final_dist=0.006
+ep 27 seed 910000027 FAIL first_success@-1 first_grasp@-1 max_lift=0.002 init_dist=0.155 final_dist=0.150
+ep 28 seed 910000028 FAIL first_success@-1 first_grasp@-1 max_lift=0.000 init_dist=0.075 final_dist=0.075
+ep 29 seed 910000029 FAIL first_success@-1 first_grasp@-1 max_lift=0.003 init_dist=0.156 final_dist=0.170
+ep 30 seed 910000030 FAIL first_success@-1 first_grasp@-1 max_lift=0.010 init_dist=0.179 final_dist=0.145
+ep 31 seed 910000031 FAIL first_success@-1 first_grasp@49 max_lift=0.087 init_dist=0.099 final_dist=0.054
+ep 32 seed 910000032 FAIL first_success@-1 first_grasp@-1 max_lift=0.004 init_dist=0.097 final_dist=0.110
+ep 33 seed 910000033 FAIL first_success@-1 first_grasp@-1 max_lift=0.000 init_dist=0.143 final_dist=0.144
+ep 34 seed 910000034 FAIL first_success@-1 first_grasp@-1 max_lift=0.000 init_dist=0.135 final_dist=0.135
+ep 35 seed 910000035 FAIL first_success@-1 first_grasp@-1 max_lift=0.000 init_dist=0.055 final_dist=0.055
+ep 36 seed 910000036 FAIL first_success@-1 first_grasp@-1 max_lift=0.001 init_dist=0.077 final_dist=0.093
+ep 37 seed 910000037 FAIL first_success@-1 first_grasp@-1 max_lift=0.005 init_dist=0.130 final_dist=0.129
+ep 38 seed 910000038 FAIL first_success@-1 first_grasp@-1 max_lift=0.000 init_dist=0.170 final_dist=0.170
+ep 39 seed 910000039 FAIL first_success@-1 first_grasp@-1 max_lift=0.000 init_dist=0.192 final_dist=0.192
+ep 40 seed 910000040 FAIL first_success@-1 first_grasp@-1 max_lift=0.003 init_dist=0.135 final_dist=0.140
+ep 41 seed 910000041 FAIL first_success@-1 first_grasp@-1 max_lift=0.004 init_dist=0.131 final_dist=0.134
+ep 42 seed 910000042 OK   first_success@101 first_grasp@48 max_lift=0.083 init_dist=0.081 final_dist=0.022
+ep 43 seed 910000043 FAIL first_success@-1 first_grasp@-1 max_lift=0.002 init_dist=0.136 final_dist=0.136
+ep 44 seed 910000044 FAIL first_success@-1 first_grasp@50 max_lift=0.008 init_dist=0.064 final_dist=0.062
+ep 45 seed 910000045 FAIL first_success@-1 first_grasp@-1 max_lift=0.005 init_dist=0.147 final_dist=0.142
+ep 46 seed 910000046 OK   first_success@108 first_grasp@52 max_lift=0.071 init_dist=0.121 final_dist=0.014
+ep 47 seed 910000047 OK   first_success@103 first_grasp@51 max_lift=0.086 init_dist=0.056 final_dist=0.035
+ep 48 seed 910000048 OK   first_success@109 first_grasp@47 max_lift=0.084 init_dist=0.099 final_dist=0.023
+ep 49 seed 910000049 FAIL first_success@-1 first_grasp@239 max_lift=0.086 init_dist=0.157 final_dist=0.045
+SUCCESS 11/50 = 22%  (61s, device=cuda)

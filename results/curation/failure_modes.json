@@ -1,0 +1,34 @@
+{
+  "curated_n50": {
+    "success": 7,
+    "never_grasped": 36,
+    "grasped_no_lift": 0,
+    "lifted_missed_target": 7,
+    "grasp_rate": 0.28,
+    "place_given_grasp": 0.5
+  },
+  "random_n50": {
+    "success": 14,
+    "never_grasped": 32,
+    "grasped_no_lift": 2,
+    "lifted_missed_target": 2,
+    "grasp_rate": 0.36,
+    "place_given_grasp": 0.7777777777777778
+  },
+  "curated_n100": {
+    "success": 11,
+    "never_grasped": 32,
+    "grasped_no_lift": 3,
+    "lifted_missed_target": 4,
+    "grasp_rate": 0.36,
+    "place_given_grasp": 0.6111111111111112
+  },
+  "random_n100": {
+    "success": 29,
+    "never_grasped": 19,
+    "grasped_no_lift": 0,
+    "lifted_missed_target": 2,
+    "grasp_rate": 0.56,
+    "place_given_grasp": 0.9285714285714286
+  }
+}
